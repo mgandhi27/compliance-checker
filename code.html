@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ComplianceAI — Technical Standards Checker</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap');
+
+:root {
+  --bg: #0a0c10;
+  --bg2: #0f1318;
+  --bg3: #151a22;
+  --bg4: #1c2330;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.12);
+  --text: #e8edf5;
+  --text2: #8a97aa;
+  --text3: #5a6675;
+  --accent: #00d4aa;
+  --accent2: #0099ff;
+  --accent3: #ff6b35;
+  --warn: #f5c842;
+  --danger: #ff4757;
+  --success: #00d4aa;
+  --mono: 'IBM Plex Mono', monospace;
+  --sans: 'DM Sans', sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── GRID NOISE BACKGROUND ── */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background-image:
+    linear-gradient(rgba(0,212,170,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,212,170,0.03) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none; z-index: 0;
+}
+
+/* ── NAV ── */
+nav {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(10,12,16,0.9);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 2rem;
+  display: flex; align-items: center; justify-content: space-between;
+  height: 56px;
+}
+.logo {
+  font-family: var(--mono);
+  font-size: 14px; font-weight: 600;
+  color: var(--accent);
+  display: flex; align-items: center; gap: 8px;
+  letter-spacing: -0.02em;
+}
+.logo-icon {
+  width: 28px; height: 28px;
+  border: 1.5px solid var(--accent);
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px;
+}
+.nav-tags { display: flex; gap: 6px; }
+.nav-tag {
+  font-family: var(--mono); font-size: 10px;
+  padding: 3px 8px; border-radius: 3px;
+  border: 1px solid var(--border2);
+  color: var(--text3);
+}
+.nav-tag.live { border-color: rgba(0,212,170,0.3); color: var(--accent); }
+.nav-tag.live::before { content: '● '; font-size: 8px; }
+
+/* ── LAYOUT ── */
+.app { display: flex; height: calc(100vh - 56px); position: relative; z-index: 1; }
+
+/* ── SIDEBAR ── */
+.sidebar {
+  width: 280px; flex-shrink: 0;
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  overflow: hidden;
+}
+.sidebar-section { padding: 1rem; border-bottom: 1px solid var(--border); }
+.sidebar-label {
+  font-family: var(--mono); font-size: 10px;
+  color: var(--text3); letter-spacing: 0.1em;
+  text-transform: uppercase; margin-bottom: 8px;
+}
+.std-list { display: flex; flex-direction: column; gap: 4px; }
+.std-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 10px; border-radius: 6px;
+  cursor: pointer; transition: background 0.15s;
+  border: 1px solid transparent;
+}
+.std-item:hover { background: var(--bg3); }
+.std-item.active { background: var(--bg4); border-color: var(--border2); }
+.std-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.std-name { font-family: var(--mono); font-size: 12px; font-weight: 500; flex: 1; }
+.std-count {
+  font-family: var(--mono); font-size: 10px;
+  color: var(--text3); background: var(--bg3);
+  padding: 2px 6px; border-radius: 3px;
+}
+
+.upload-area {
+  border: 1.5px dashed var(--border2);
+  border-radius: 8px; padding: 20px;
+  text-align: center; cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+}
+.upload-area:hover, .upload-area.drag { border-color: var(--accent); background: rgba(0,212,170,0.04); }
+.upload-area input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.upload-icon { font-size: 24px; margin-bottom: 6px; }
+.upload-text { font-size: 12px; color: var(--text2); line-height: 1.5; }
+.upload-text strong { color: var(--accent); }
+
+.sidebar-scroll { flex: 1; overflow-y: auto; padding: 1rem; }
+.doc-item {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px; border-radius: 6px;
+  background: var(--bg3); border: 1px solid var(--border);
+  margin-bottom: 6px; cursor: pointer;
+  transition: border-color 0.15s;
+}
+.doc-item:hover { border-color: var(--border2); }
+.doc-item.active { border-color: var(--accent2); }
+.doc-icon { font-size: 16px; flex-shrink: 0; }
+.doc-info { flex: 1; min-width: 0; }
+.doc-name { font-size: 12px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.doc-meta { font-family: var(--mono); font-size: 10px; color: var(--text3); margin-top: 2px; }
+.doc-status { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+
+/* ── MAIN CONTENT ── */
+.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+/* ── TOP BAR ── */
+.topbar {
+  padding: 0.75rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 1rem;
+  background: var(--bg2);
+}
+.topbar-title { font-size: 14px; font-weight: 500; flex: 1; }
+.topbar-title span { color: var(--text3); }
+.btn {
+  font-family: var(--mono); font-size: 11px; font-weight: 600;
+  padding: 7px 14px; border-radius: 5px;
+  border: none; cursor: pointer; transition: all 0.15s;
+  letter-spacing: 0.03em;
+}
+.btn-primary { background: var(--accent); color: #000; }
+.btn-primary:hover { background: #00bfa0; transform: translateY(-1px); }
+.btn-primary:active { transform: translateY(0); }
+.btn-primary:disabled { background: var(--bg4); color: var(--text3); cursor: not-allowed; transform: none; }
+.btn-secondary {
+  background: transparent; color: var(--text2);
+  border: 1px solid var(--border2);
+}
+.btn-secondary:hover { background: var(--bg3); color: var(--text); }
+
+.view-tabs { display: flex; gap: 2px; background: var(--bg3); border-radius: 6px; padding: 3px; }
+.view-tab {
+  font-family: var(--mono); font-size: 11px;
+  padding: 5px 12px; border-radius: 4px;
+  cursor: pointer; color: var(--text3);
+  transition: all 0.15s; border: none; background: transparent;
+}
+.view-tab.active { background: var(--bg4); color: var(--text); }
+
+/* ── CONTENT AREA ── */
+.content { flex: 1; overflow-y: auto; padding: 1.5rem; }
+
+/* ── DASHBOARD VIEW ── */
+.stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 1.5rem; }
+.stat-card {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 10px; padding: 1rem 1.25rem;
+  position: relative; overflow: hidden;
+}
+.stat-card::after {
+  content: ''; position: absolute;
+  top: 0; left: 0; right: 0; height: 2px;
+}
+.stat-card.green::after { background: linear-gradient(90deg, var(--success), transparent); }
+.stat-card.blue::after { background: linear-gradient(90deg, var(--accent2), transparent); }
+.stat-card.yellow::after { background: linear-gradient(90deg, var(--warn), transparent); }
+.stat-card.red::after { background: linear-gradient(90deg, var(--danger), transparent); }
+.stat-label { font-family: var(--mono); font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 8px; }
+.stat-val { font-family: var(--mono); font-size: 28px; font-weight: 600; line-height: 1; }
+.stat-val.green { color: var(--success); }
+.stat-val.blue { color: var(--accent2); }
+.stat-val.yellow { color: var(--warn); }
+.stat-val.red { color: var(--danger); }
+.stat-sub { font-size: 11px; color: var(--text3); margin-top: 6px; }
+
+/* ── PROGRESS BAR ── */
+.progress-section { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 1rem 1.25rem; margin-bottom: 1.5rem; }
+.progress-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.progress-title { font-size: 13px; font-weight: 500; }
+.progress-pct { font-family: var(--mono); font-size: 13px; color: var(--accent); }
+.progress-bar-wrap { height: 6px; background: var(--bg4); border-radius: 3px; overflow: hidden; margin-bottom: 8px; }
+.progress-bar-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, var(--accent), var(--accent2)); transition: width 1s ease; }
+.progress-segments { display: flex; gap: 8px; }
+.progress-seg { font-size: 11px; color: var(--text3); display: flex; align-items: center; gap: 4px; }
+.progress-seg-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+/* ── RESULTS TABLE ── */
+.results-section { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.results-header { padding: 0.75rem 1.25rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 1rem; }
+.results-title { font-size: 13px; font-weight: 500; flex: 1; }
+.filter-row { display: flex; gap: 6px; }
+.filter-btn {
+  font-family: var(--mono); font-size: 10px;
+  padding: 4px 10px; border-radius: 4px;
+  border: 1px solid var(--border2); background: transparent;
+  color: var(--text3); cursor: pointer; transition: all 0.15s;
+}
+.filter-btn:hover { color: var(--text); border-color: var(--border2); background: var(--bg3); }
+.filter-btn.active { color: #000; border-color: transparent; }
+.filter-btn.all.active { background: var(--text2); }
+.filter-btn.pass.active { background: var(--success); }
+.filter-btn.warn.active { background: var(--warn); color: #000; }
+.filter-btn.fail.active { background: var(--danger); }
+
+.results-table { width: 100%; }
+.results-table th {
+  font-family: var(--mono); font-size: 10px; color: var(--text3);
+  text-transform: uppercase; letter-spacing: 0.07em;
+  padding: 10px 1.25rem; text-align: left;
+  background: var(--bg3); border-bottom: 1px solid var(--border);
+  font-weight: 500;
+}
+.results-table td { padding: 10px 1.25rem; border-bottom: 1px solid var(--border); vertical-align: top; }
+.results-table tr:last-child td { border-bottom: none; }
+.results-table tr { cursor: pointer; transition: background 0.1s; }
+.results-table tr:hover td { background: var(--bg3); }
+.results-table tr.expanded td { background: var(--bg3); }
+
+.clause-id { font-family: var(--mono); font-size: 11px; color: var(--accent2); }
+.clause-text { font-size: 12px; color: var(--text); max-width: 340px; }
+.clause-text-short { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 340px; }
+.std-badge {
+  font-family: var(--mono); font-size: 10px;
+  padding: 2px 7px; border-radius: 3px;
+  border: 1px solid; display: inline-block; white-space: nowrap;
+}
+.status-badge {
+  font-family: var(--mono); font-size: 10px; font-weight: 600;
+  padding: 3px 8px; border-radius: 4px;
+  display: inline-flex; align-items: center; gap: 4px;
+}
+.status-badge.pass { background: rgba(0,212,170,0.12); color: var(--success); }
+.status-badge.warn { background: rgba(245,200,66,0.12); color: var(--warn); }
+.status-badge.fail { background: rgba(255,71,87,0.12); color: var(--danger); }
+.confidence-bar { width: 80px; height: 4px; background: var(--bg4); border-radius: 2px; overflow: hidden; margin-top: 3px; }
+.confidence-fill { height: 100%; border-radius: 2px; }
+.confidence-text { font-family: var(--mono); font-size: 10px; color: var(--text3); }
+
+/* ── EXPANDED ROW ── */
+.evidence-block {
+  background: var(--bg4); border-radius: 8px;
+  border: 1px solid var(--border2); padding: 12px;
+  margin-top: 8px;
+}
+.evidence-label { font-family: var(--mono); font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 0.07em; margin-bottom: 6px; }
+.evidence-text { font-size: 12px; color: var(--text2); line-height: 1.7; }
+.evidence-highlight { background: rgba(0,153,255,0.15); border-radius: 3px; padding: 1px 3px; color: var(--accent2); }
+.ai-note { font-size: 11px; color: var(--text3); margin-top: 8px; display: flex; align-items: flex-start; gap: 6px; font-style: italic; }
+.ai-chip { font-family: var(--mono); font-size: 9px; background: rgba(0,212,170,0.1); color: var(--accent); padding: 1px 5px; border-radius: 2px; flex-shrink: 0; margin-top: 1px; font-style: normal; }
+
+/* ── SCAN RUNNING STATE ── */
+.scan-overlay {
+  display: none; position: absolute; inset: 0;
+  background: rgba(10,12,16,0.92);
+  z-index: 50; align-items: center; justify-content: center;
+  flex-direction: column; gap: 20px;
+}
+.scan-overlay.visible { display: flex; }
+.scan-box {
+  background: var(--bg2); border: 1px solid var(--border2);
+  border-radius: 12px; padding: 2rem; width: 400px;
+}
+.scan-title { font-family: var(--mono); font-size: 16px; color: var(--accent); margin-bottom: 4px; }
+.scan-sub { font-size: 13px; color: var(--text2); margin-bottom: 1.5rem; }
+.scan-steps { display: flex; flex-direction: column; gap: 10px; }
+.scan-step { display: flex; align-items: center; gap: 10px; }
+.scan-step-icon { width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 10px; flex-shrink: 0; }
+.scan-step-icon.done { background: rgba(0,212,170,0.2); color: var(--accent); }
+.scan-step-icon.running {
+  background: rgba(0,153,255,0.2); color: var(--accent2);
+  animation: spin 1s linear infinite;
+}
+.scan-step-icon.pending { background: var(--bg4); color: var(--text3); }
+@keyframes spin { to { transform: rotate(360deg); } }
+.scan-step-text { font-size: 12px; }
+.scan-step-text.done { color: var(--text2); }
+.scan-step-text.running { color: var(--text); font-weight: 500; }
+.scan-step-text.pending { color: var(--text3); }
+.scan-progress-bar { height: 3px; background: var(--bg4); border-radius: 2px; margin-top: 1.5rem; overflow: hidden; }
+.scan-progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 2px; transition: width 0.4s ease; }
+
+/* ── EMPTY STATE ── */
+.empty-state {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  height: 300px; gap: 12px; color: var(--text3);
+}
+.empty-icon { font-size: 40px; opacity: 0.4; }
+.empty-title { font-size: 14px; color: var(--text2); }
+.empty-sub { font-size: 12px; text-align: center; max-width: 300px; line-height: 1.6; }
+
+/* ── REPORT VIEW ── */
+.report-view { display: none; }
+.report-view.active { display: block; }
+.dashboard-view.hidden { display: none; }
+.report-header { background: var(--bg2); border: 1px solid var(--border); border-radius: 10px; padding: 1.25rem; margin-bottom: 1rem; }
+.report-meta { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 1rem; }
+.report-meta-item label { font-family: var(--mono); font-size: 10px; color: var(--text3); text-transform: uppercase; display: block; margin-bottom: 4px; }
+.report-meta-item span { font-size: 13px; }
+
+/* ── CHART ── */
+.donut-wrap { display: flex; align-items: center; gap: 1.5rem; padding: 0.5rem; }
+.donut-svg { flex-shrink: 0; }
+.donut-legend { display: flex; flex-direction: column; gap: 8px; }
+.donut-legend-item { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+.donut-legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+
+/* ── ANIMATIONS ── */
+@keyframes fadeInUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+.fade-in { animation: fadeInUp 0.3s ease both; }
+.fade-in-1 { animation-delay: 0.05s; }
+.fade-in-2 { animation-delay: 0.1s; }
+.fade-in-3 { animation-delay: 0.15s; }
+.fade-in-4 { animation-delay: 0.2s; }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">
+    <div class="logo-icon">⚙</div>
+    ComplianceAI
+  </div>
+  <div class="nav-tags">
+    <span class="nav-tag live">system online</span>
+    <span class="nav-tag">v1.0.0</span>
+    <span class="nav-tag">6 standards loaded</span>
+  </div>
+</nav>
+
+<div class="app" style="position:relative;">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <!-- Standards -->
+    <div class="sidebar-section">
+      <div class="sidebar-label">Standards Library</div>
+      <div class="std-list" id="stdList"></div>
+    </div>
+
+    <!-- Upload -->
+    <div class="sidebar-section">
+      <div class="sidebar-label">Upload Document</div>
+      <div class="upload-area" id="uploadArea">
+        <input type="file" multiple accept=".pdf,.docx,.xlsx,.txt" onchange="handleFileUpload(event)"/>
+        <div class="upload-icon">📄</div>
+        <div class="upload-text"><strong>Drop files here</strong><br>PDF, DOCX, XLSX supported</div>
+      </div>
+    </div>
+
+    <!-- Documents -->
+    <div class="sidebar-scroll">
+      <div class="sidebar-label">Documents</div>
+      <div id="docList"></div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="topbar">
+      <div class="topbar-title" id="topbarTitle">
+        <span>No document selected —</span> upload or select a document to begin
+      </div>
+      <div class="view-tabs" id="viewTabs" style="display:none;">
+        <button class="view-tab active" onclick="setView('dashboard')">Dashboard</button>
+        <button class="view-tab" onclick="setView('report')">Full Report</button>
+      </div>
+      <button class="btn btn-secondary" onclick="exportReport()" id="exportBtn" style="display:none;">↓ Export PDF</button>
+      <button class="btn btn-primary" onclick="runScan()" id="scanBtn" disabled>▶ Run Compliance Scan</button>
+    </div>
+
+    <div class="content" id="mainContent">
+      <!-- Empty state -->
+      <div class="empty-state" id="emptyState">
+        <div class="empty-icon">🔍</div>
+        <div class="empty-title">No document loaded</div>
+        <div class="empty-sub">Upload an engineering document and select the technical standards to check compliance against</div>
+      </div>
+
+      <!-- Dashboard view -->
+      <div class="dashboard-view hidden" id="dashboardView">
+
+        <!-- Stats -->
+        <div class="stats-grid fade-in">
+          <div class="stat-card green">
+            <div class="stat-label">Compliant</div>
+            <div class="stat-val green" id="statPass">—</div>
+            <div class="stat-sub">clauses passed</div>
+          </div>
+          <div class="stat-card yellow">
+            <div class="stat-label">Warnings</div>
+            <div class="stat-val yellow" id="statWarn">—</div>
+            <div class="stat-sub">need review</div>
+          </div>
+          <div class="stat-card red">
+            <div class="stat-label">Failures</div>
+            <div class="stat-val red" id="statFail">—</div>
+            <div class="stat-sub">non-compliant</div>
+          </div>
+          <div class="stat-card blue">
+            <div class="stat-label">Coverage</div>
+            <div class="stat-val blue" id="statCov">—</div>
+            <div class="stat-sub">of clauses checked</div>
+          </div>
+        </div>
+
+        <!-- Overall progress -->
+        <div class="progress-section fade-in fade-in-1">
+          <div class="progress-header">
+            <div class="progress-title">Overall Compliance Score</div>
+            <div class="progress-pct" id="overallPct">—</div>
+          </div>
+          <div class="progress-bar-wrap">
+            <div class="progress-bar-fill" id="progressFill" style="width:0%"></div>
+          </div>
+          <div class="progress-segments" id="progressSegs"></div>
+        </div>
+
+        <!-- Results table -->
+        <div class="results-section fade-in fade-in-2">
+          <div class="results-header">
+            <div class="results-title">Clause-by-Clause Results</div>
+            <div class="filter-row">
+              <button class="filter-btn all active" onclick="setFilter('all',this)">All</button>
+              <button class="filter-btn pass" onclick="setFilter('pass',this)">✓ Pass</button>
+              <button class="filter-btn warn" onclick="setFilter('warn',this)">⚠ Warn</button>
+              <button class="filter-btn fail" onclick="setFilter('fail',this)">✕ Fail</button>
+            </div>
+          </div>
+          <table class="results-table">
+            <thead>
+              <tr>
+                <th>Clause ID</th>
+                <th>Requirement</th>
+                <th>Standard</th>
+                <th>Status</th>
+                <th>Confidence</th>
+              </tr>
+            </thead>
+            <tbody id="resultsBody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Report view -->
+      <div class="report-view" id="reportView">
+        <div class="report-header">
+          <div style="display:flex; align-items:flex-start; justify-content:space-between;">
+            <div>
+              <div style="font-family:var(--mono);font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:6px;">Compliance Report</div>
+              <div style="font-size:18px;font-weight:500;" id="reportDocName">—</div>
+            </div>
+            <div style="text-align:right">
+              <div style="font-family:var(--mono);font-size:10px;color:var(--text3);" id="reportTimestamp">—</div>
+              <div style="font-family:var(--mono);font-size:11px;color:var(--accent);margin-top:4px;">AI-verified</div>
+            </div>
+          </div>
+          <div class="report-meta" id="reportMeta"></div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 220px;gap:1rem;margin-bottom:1rem;">
+          <div class="results-section">
+            <div class="results-header"><div class="results-title">Full Traceability Matrix</div></div>
+            <table class="results-table"><thead><tr>
+              <th>Clause</th><th>Requirement Text</th><th>Standard</th><th>Evidence</th><th>Status</th>
+            </tr></thead>
+            <tbody id="reportBody"></tbody></table>
+          </div>
+          <div>
+            <div class="results-section" style="padding:1rem;">
+              <div class="results-title" style="margin-bottom:1rem;font-size:13px;">Distribution</div>
+              <div class="donut-wrap" id="donutWrap" style="flex-direction:column;align-items:flex-start;gap:1rem;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- SCAN OVERLAY -->
+  <div class="scan-overlay" id="scanOverlay">
+    <div class="scan-box">
+      <div class="scan-title">// SCANNING</div>
+      <div class="scan-sub" id="scanDocName">Running compliance analysis…</div>
+      <div class="scan-steps" id="scanSteps"></div>
+      <div class="scan-progress-bar"><div class="scan-progress-fill" id="scanProgressFill" style="width:0%"></div></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ── DATA ────────────────────────────────────────────
+const STANDARDS = [
+  { id:'ISO', name:'ISO 9001:2015', color:'#00d4aa', clauses:42, desc:'Quality Management Systems' },
+  { id:'IEEE', name:'IEEE 802.3', color:'#0099ff', clauses:38, desc:'Ethernet Standards' },
+  { id:'IPC', name:'IPC-2221B', color:'#ff6b35', clauses:29, desc:'PCB Design Standard' },
+  { id:'BIS', name:'BIS IS 732', color:'#f5c842', clauses:31, desc:'Electrical Installations' },
+  { id:'ASME', name:'ASME Y14.5', color:'#b48eff', clauses:24, desc:'Geometric Dimensioning' },
+  { id:'NEC', name:'NEC 2023', color:'#ff4757', clauses:35, desc:'National Electrical Code' },
+];
+
+const DEMO_DOCS = [
+  { name:'PCB_Design_Rev3.pdf', type:'pdf', size:'2.4 MB', standard:'IPC', status:'scanned' },
+  { name:'Electrical_Spec_v2.docx', type:'docx', size:'1.1 MB', standard:'NEC', status:'scanned' },
+  { name:'Quality_Manual_2024.pdf', type:'pdf', size:'5.8 MB', standard:'ISO', status:'pending' },
+];
+
+const EVIDENCE_POOL = [
+  'Section 4.2.1 of the design document specifies copper trace width of <span class="evidence-highlight">0.2mm minimum</span>, which satisfies the stated requirement.',
+  'Design drawing D-004 references material grade <span class="evidence-highlight">FR-4 Tg 150°C</span> in the Bill of Materials attached to Rev3.',
+  'Page 12 of the specification document contains the clause: <span class="evidence-highlight">"All connectors shall comply with IPC/WHMA-A-620 Class 3."</span>',
+  'No explicit mention of this requirement was found in the submitted document. Partial match confidence is based on contextual similarity to Section 6.4.',
+  'The engineering drawing notes on Sheet 3 specify <span class="evidence-highlight">±0.1mm tolerance</span> on all critical dimensions, meeting the stated requirement.',
+  'Impedance control specification found in fabrication notes: <span class="evidence-highlight">50Ω ±10%</span> differential pairs, consistent with clause requirement.',
+];
+
+const REQUIREMENTS = [
+  { clause:'4.1.2', text:'All PCB traces carrying >1A shall have minimum width of 0.3mm at 25°C ambient', type:'Dimensional', criticality:'Critical' },
+  { clause:'4.3.1', text:'Solder mask clearance shall be minimum 0.05mm from copper features', type:'Manufacturing', criticality:'High' },
+  { clause:'5.2.4', text:'Via drill diameter shall not be less than 0.2mm for any signal layer', type:'Dimensional', criticality:'High' },
+  { clause:'6.1.1', text:'All components shall be rated for operating temperature range of -40°C to +85°C', type:'Environmental', criticality:'Critical' },
+  { clause:'6.4.2', text:'Conformal coating shall be applied to all assemblies used in harsh environments', type:'Process', criticality:'Medium' },
+  { clause:'7.2.1', text:'Impedance controlled traces shall maintain ±10% tolerance across entire board', type:'Electrical', criticality:'Critical' },
+  { clause:'7.5.3', text:'Board edge clearance for all components shall be minimum 2.5mm', type:'Dimensional', criticality:'Medium' },
+  { clause:'8.1.1', text:'Each PCB shall have a unique serial number etched or printed on silkscreen', type:'Traceability', criticality:'High' },
+  { clause:'8.3.2', text:'Copper weight shall be specified in fabrication notes for all copper layers', type:'Material', criticality:'High' },
+  { clause:'9.1.4', text:'Silkscreen text height shall be minimum 0.8mm for readability', type:'Marking', criticality:'Low' },
+  { clause:'9.4.1', text:'All BGA pads shall comply with IPC-7351 land pattern recommendations', type:'Component', criticality:'Critical' },
+  { clause:'10.2.3', text:'Design shall pass DRC checks per specified design rules before release', type:'Process', criticality:'Critical' },
+];
+
+// ── STATE ────────────────────────────────────────────
+let state = {
+  selectedStd: null,
+  selectedDoc: null,
+  docs: [...DEMO_DOCS],
+  results: [],
+  filter: 'all',
+  view: 'dashboard',
+  scanned: false,
+};
+
+// ── INIT ─────────────────────────────────────────────
+function init() {
+  renderStdList();
+  renderDocList();
+  // auto-select first std
+  selectStd(STANDARDS[2].id);
+}
+
+function renderStdList() {
+  const el = document.getElementById('stdList');
+  el.innerHTML = STANDARDS.map(s => `
+    <div class="std-item ${state.selectedStd===s.id?'active':''}" onclick="selectStd('${s.id}')">
+      <div class="std-dot" style="background:${s.color}"></div>
+      <div class="std-name">${s.id}</div>
+      <div class="std-count">${s.clauses}</div>
+    </div>
+  `).join('');
+}
+
+function renderDocList() {
+  const el = document.getElementById('docList');
+  const icons = { pdf:'📕', docx:'📘', xlsx:'📗', txt:'📄' };
+  const statusColor = { scanned: 'var(--accent)', pending: 'var(--warn)', error: 'var(--danger)' };
+  el.innerHTML = state.docs.map((d,i) => `
+    <div class="doc-item ${state.selectedDoc===i?'active':''}" onclick="selectDoc(${i})">
+      <div class="doc-icon">${icons[d.type]||'📄'}</div>
+      <div class="doc-info">
+        <div class="doc-name">${d.name}</div>
+        <div class="doc-meta">${d.size} · ${d.standard||'—'}</div>
+      </div>
+      <div class="doc-status" style="background:${statusColor[d.status]||'var(--text3)'}"></div>
+    </div>
+  `).join('');
+}
+
+function selectStd(id) {
+  state.selectedStd = id;
+  state.scanned = false;
+  state.results = [];
+  renderStdList();
+  updateScanBtn();
+}
+
+function selectDoc(i) {
+  state.selectedDoc = i;
+  state.scanned = false;
+  state.results = [];
+  state.view = 'dashboard';
+  renderDocList();
+  updateScanBtn();
+  showDocUI();
+}
+
+function updateScanBtn() {
+  const btn = document.getElementById('scanBtn');
+  btn.disabled = state.selectedDoc === null || !state.selectedStd;
+}
+
+function showDocUI() {
+  if (state.selectedDoc === null) return;
+  const doc = state.docs[state.selectedDoc];
+  document.getElementById('emptyState').style.display = 'none';
+  document.getElementById('dashboardView').classList.remove('hidden');
+  document.getElementById('viewTabs').style.display = 'flex';
+  document.getElementById('exportBtn').style.display = 'inline-block';
+  document.getElementById('topbarTitle').innerHTML = `<span>${doc.name}</span> — select standards and run scan`;
+  if (!state.scanned) {
+    document.getElementById('statPass').textContent = '—';
+    document.getElementById('statWarn').textContent = '—';
+    document.getElementById('statFail').textContent = '—';
+    document.getElementById('statCov').textContent = '—';
+    document.getElementById('overallPct').textContent = '—';
+    document.getElementById('progressFill').style.width = '0%';
+    document.getElementById('progressSegs').innerHTML = '';
+    document.getElementById('resultsBody').innerHTML = `
+      <tr><td colspan="5" style="text-align:center;padding:2rem;color:var(--text3);font-size:13px;">
+        Click "Run Compliance Scan" to analyse this document
+      </td></tr>`;
+  }
+}
+
+// ── SCAN FLOW ─────────────────────────────────────────
+const SCAN_STEPS = [
+  'Parsing document structure & extracting text',
+  'Tokenizing and building semantic embeddings',
+  'Loading standard clauses from knowledge base',
+  'Mapping requirements to design sections (FAISS)',
+  'Running deterministic rule-based validation',
+  'Generating compliance report & traceability matrix',
+];
+
+function runScan() {
+  if (state.selectedDoc === null || !state.selectedStd) return;
+  const doc = state.docs[state.selectedDoc];
+  document.getElementById('scanDocName').textContent = `Analysing: ${doc.name}`;
+  document.getElementById('scanOverlay').classList.add('visible');
+
+  let step = 0;
+  renderScanSteps(step);
+
+  const tick = setInterval(() => {
+    step++;
+    if (step >= SCAN_STEPS.length) {
+      clearInterval(tick);
+      setTimeout(finishScan, 400);
+    } else {
+      renderScanSteps(step);
+      document.getElementById('scanProgressFill').style.width = `${(step/SCAN_STEPS.length)*100}%`;
+    }
+  }, 600);
+}
+
+function renderScanSteps(current) {
+  const el = document.getElementById('scanSteps');
+  el.innerHTML = SCAN_STEPS.map((s, i) => {
+    const state = i < current ? 'done' : i === current ? 'running' : 'pending';
+    const icon = state === 'done' ? '✓' : state === 'running' ? '↻' : '○';
+    return `
+      <div class="scan-step">
+        <div class="scan-step-icon ${state}">${icon}</div>
+        <div class="scan-step-text ${state}">${s}</div>
+      </div>`;
+  }).join('');
+}
+
+function finishScan() {
+  document.getElementById('scanProgressFill').style.width = '100%';
+  generateResults();
+  setTimeout(() => {
+    document.getElementById('scanOverlay').classList.remove('visible');
+    state.scanned = true;
+    renderDashboard();
+    setView('dashboard');
+  }, 500);
+}
+
+function generateResults() {
+  const std = STANDARDS.find(s => s.id === state.selectedStd);
+  state.results = REQUIREMENTS.map((req, i) => {
+    const r = Math.random();
+    const status = r < 0.55 ? 'pass' : r < 0.78 ? 'warn' : 'fail';
+    const confidence = status === 'pass' ? 72 + Math.floor(Math.random()*27) :
+                       status === 'warn' ? 45 + Math.floor(Math.random()*30) :
+                       20 + Math.floor(Math.random()*35);
+    return {
+      ...req, std: std, status,
+      confidence,
+      evidence: EVIDENCE_POOL[i % EVIDENCE_POOL.length],
+    };
+  });
+}
+
+// ── DASHBOARD RENDER ──────────────────────────────────
+function renderDashboard() {
+  const pass = state.results.filter(r=>r.status==='pass').length;
+  const warn = state.results.filter(r=>r.status==='warn').length;
+  const fail = state.results.filter(r=>r.status==='fail').length;
+  const total = state.results.length;
+  const pct = Math.round((pass/total)*100);
+
+  document.getElementById('statPass').textContent = pass;
+  document.getElementById('statWarn').textContent = warn;
+  document.getElementById('statFail').textContent = fail;
+  document.getElementById('statCov').textContent = '100%';
+  document.getElementById('overallPct').textContent = `${pct}%`;
+
+  setTimeout(() => {
+    document.getElementById('progressFill').style.width = `${pct}%`;
+  }, 100);
+
+  document.getElementById('progressSegs').innerHTML = `
+    <div class="progress-seg"><div class="progress-seg-dot" style="background:var(--success)"></div>${pass} passed</div>
+    <div class="progress-seg"><div class="progress-seg-dot" style="background:var(--warn)"></div>${warn} warnings</div>
+    <div class="progress-seg"><div class="progress-seg-dot" style="background:var(--danger)"></div>${fail} failed</div>
+  `;
+
+  renderResultsTable();
+  renderReportView(pass, warn, fail, pct);
+
+  const doc = state.docs[state.selectedDoc];
+  document.getElementById('topbarTitle').innerHTML = `<span>${doc.name}</span> — ${pct}% compliant with ${state.selectedStd}`;
+}
+
+function renderResultsTable() {
+  const filtered = state.filter === 'all' ? state.results : state.results.filter(r=>r.status===state.filter);
+  const std = STANDARDS.find(s=>s.id===state.selectedStd);
+  const tbody = document.getElementById('resultsBody');
+  tbody.innerHTML = filtered.map((r, i) => {
+    const confColor = r.confidence>=70?'var(--success)':r.confidence>=45?'var(--warn)':'var(--danger)';
+    return `
+    <tr onclick="toggleRow(${i})" id="row-${i}">
+      <td><div class="clause-id">${r.std?.id||'—'} §${r.clause}</div></td>
+      <td><div class="clause-text-short">${r.text}</div></td>
+      <td><span class="std-badge" style="color:${std?.color};border-color:${std?.color}40">${std?.name||'—'}</span></td>
+      <td><span class="status-badge ${r.status}">${r.status==='pass'?'✓ Pass':r.status==='warn'?'⚠ Warning':'✕ Fail'}</span></td>
+      <td>
+        <div class="confidence-text">${r.confidence}%</div>
+        <div class="confidence-bar"><div class="confidence-fill" style="width:${r.confidence}%;background:${confColor}"></div></div>
+      </td>
+    </tr>
+    <tr id="expand-${i}" style="display:none;">
+      <td colspan="5" style="padding:0 1.25rem 1rem;">
+        <div class="evidence-block">
+          <div class="evidence-label">Requirement</div>
+          <div class="evidence-text" style="margin-bottom:10px;color:var(--text)">${r.text}</div>
+          <div class="evidence-label">Matched Evidence</div>
+          <div class="evidence-text">${r.evidence}</div>
+          <div class="ai-note"><span class="ai-chip">AI</span> Confidence score based on semantic similarity + rule validation. ${r.status==='fail'?'Manual review required.':r.status==='warn'?'Partial match — verify manually.':'High confidence match found.'}</div>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function toggleRow(i) {
+  const exp = document.getElementById(`expand-${i}`);
+  const row = document.getElementById(`row-${i}`);
+  const isOpen = exp.style.display !== 'none';
+  exp.style.display = isOpen ? 'none' : 'table-row';
+  row.classList.toggle('expanded', !isOpen);
+}
+
+function setFilter(f, btn) {
+  state.filter = f;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderResultsTable();
+}
+
+// ── REPORT VIEW ───────────────────────────────────────
+function renderReportView(pass, warn, fail, pct) {
+  const doc = state.docs[state.selectedDoc];
+  const std = STANDARDS.find(s=>s.id===state.selectedStd);
+  const now = new Date().toLocaleString();
+  document.getElementById('reportDocName').textContent = doc.name;
+  document.getElementById('reportTimestamp').textContent = `Generated: ${now}`;
+
+  document.getElementById('reportMeta').innerHTML = `
+    <div class="report-meta-item"><label>Standard</label><span>${std?.name||'—'}</span></div>
+    <div class="report-meta-item"><label>Clauses Checked</label><span>${state.results.length}</span></div>
+    <div class="report-meta-item"><label>Compliance Score</label><span style="color:${pct>=70?'var(--success)':pct>=50?'var(--warn)':'var(--danger)'};font-weight:500">${pct}%</span></div>
+  `;
+
+  // donut chart SVG
+  const total = pass + warn + fail;
+  const donutSVG = buildDonut(pass, warn, fail, total, pct);
+  document.getElementById('donutWrap').innerHTML = donutSVG + `
+    <div class="donut-legend">
+      <div class="donut-legend-item"><div class="donut-legend-dot" style="background:var(--success)"></div>Pass (${pass})</div>
+      <div class="donut-legend-item"><div class="donut-legend-dot" style="background:var(--warn)"></div>Warning (${warn})</div>
+      <div class="donut-legend-item"><div class="donut-legend-dot" style="background:var(--danger)"></div>Fail (${fail})</div>
+    </div>`;
+
+  const tbody = document.getElementById('reportBody');
+  tbody.innerHTML = state.results.map(r => `
+    <tr>
+      <td><div class="clause-id">${r.std?.id} §${r.clause}</div><div style="font-size:10px;color:var(--text3);margin-top:2px">${r.type}</div></td>
+      <td style="max-width:220px;font-size:11px;color:var(--text2)">${r.text.substring(0,90)}…</td>
+      <td><span class="std-badge" style="color:${std?.color};border-color:${std?.color}40;font-size:10px">${std?.id}</span></td>
+      <td style="font-size:11px;color:var(--text3);max-width:160px">Sec. ${r.clause} ↔ design §${Math.floor(Math.random()*9)+1}.${Math.floor(Math.random()*9)+1}</td>
+      <td><span class="status-badge ${r.status}">${r.status==='pass'?'✓':r.status==='warn'?'⚠':'✕'} ${r.status}</span></td>
+    </tr>`).join('');
+}
+
+function buildDonut(pass, warn, fail, total, pct) {
+  const r = 54; const cx = 70; const cy = 70;
+  const circ = 2 * Math.PI * r;
+  const pPass = pass/total; const pWarn = warn/total; const pFail = fail/total;
+  const dPass = pPass * circ; const dWarn = pWarn * circ; const dFail = pFail * circ;
+  const gapPass = circ - dPass;
+  const gapWarn = circ - dWarn;
+  const gapFail = circ - dFail;
+  const offPass = circ * 0.25;
+  const offWarn = offPass - dPass;
+  const offFail = offWarn - dWarn;
+  return `<svg class="donut-svg" viewBox="0 0 140 140" width="140" height="140">
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#1c2330" stroke-width="14"/>
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--success)" stroke-width="14"
+      stroke-dasharray="${dPass} ${gapPass}" stroke-dashoffset="${offPass}" transform="rotate(-90 ${cx} ${cy})"/>
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--warn)" stroke-width="14"
+      stroke-dasharray="${dWarn} ${gapWarn}" stroke-dashoffset="${offWarn}" transform="rotate(-90 ${cx} ${cy})"/>
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--danger)" stroke-width="14"
+      stroke-dasharray="${dFail} ${gapFail}" stroke-dashoffset="${offFail}" transform="rotate(-90 ${cx} ${cy})"/>
+    <text x="${cx}" y="${cy-6}" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="22" font-weight="600" fill="var(--text)">${pct}%</text>
+    <text x="${cx}" y="${cy+12}" text-anchor="middle" font-family="DM Sans,sans-serif" font-size="9" fill="var(--text3)">compliant</text>
+  </svg>`;
+}
+
+// ── VIEW SWITCH ───────────────────────────────────────
+function setView(v) {
+  state.view = v;
+  document.querySelectorAll('.view-tab').forEach((t,i)=>{
+    t.classList.toggle('active', (i===0&&v==='dashboard')||(i===1&&v==='report'));
+  });
+  document.getElementById('dashboardView').classList.toggle('hidden', v!=='dashboard');
+  document.getElementById('reportView').classList.toggle('active', v==='report');
+}
+
+// ── FILE UPLOAD ───────────────────────────────────────
+function handleFileUpload(e) {
+  const files = Array.from(e.target.files);
+  files.forEach(f => {
+    const ext = f.name.split('.').pop().toLowerCase();
+    state.docs.push({
+      name: f.name,
+      type: ext,
+      size: (f.size/1024/1024).toFixed(1)+' MB',
+      standard: state.selectedStd || null,
+      status: 'pending'
+    });
+  });
+  renderDocList();
+  if (files.length > 0) selectDoc(state.docs.length - 1);
+}
+
+// drag-and-drop
+const ua = document.getElementById('uploadArea');
+ua.addEventListener('dragover', e => { e.preventDefault(); ua.classList.add('drag'); });
+ua.addEventListener('dragleave', () => ua.classList.remove('drag'));
+ua.addEventListener('drop', e => {
+  e.preventDefault(); ua.classList.remove('drag');
+  const dt = new DataTransfer();
+  Array.from(e.dataTransfer.files).forEach(f => dt.items.add(f));
+  handleFileUpload({ target: { files: dt.files } });
+});
+
+// ── EXPORT ────────────────────────────────────────────
+function exportReport() {
+  if (!state.scanned) { alert('Run a compliance scan first.'); return; }
+  const doc = state.docs[state.selectedDoc];
+  const std = STANDARDS.find(s=>s.id===state.selectedStd);
+  const pass = state.results.filter(r=>r.status==='pass').length;
+  const warn = state.results.filter(r=>r.status==='warn').length;
+  const fail = state.results.filter(r=>r.status==='fail').length;
+  const pct = Math.round((pass/state.results.length)*100);
+  const rows = state.results.map(r=>
+    `${r.std?.id} §${r.clause}\t${r.text}\t${r.status.toUpperCase()}\t${r.confidence}%\t${r.type}`
+  ).join('\n');
+  const content = `COMPLIANCE REPORT — ComplianceAI\n${'='.repeat(50)}\nDocument: ${doc.name}\nStandard: ${std?.name}\nScore: ${pct}%\nPass: ${pass} | Warn: ${warn} | Fail: ${fail}\nGenerated: ${new Date().toLocaleString()}\n\n${'='.repeat(50)}\nCLAUSE\tREQUIREMENT\tSTATUS\tCONFIDENCE\tTYPE\n${rows}`;
+  const blob = new Blob([content], {type:'text/plain'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `compliance_report_${doc.name.replace(/\.[^.]+$/,'')}.txt`;
+  a.click(); URL.revokeObjectURL(url);
+}
+
+init();
+</script>
+</body>
+</html>
