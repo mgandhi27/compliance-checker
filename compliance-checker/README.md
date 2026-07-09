@@ -5,14 +5,14 @@
 
 ---
 
-## 🚀 Demo
+##  Demo
 
 Open `frontend/index.html` directly in your browser — no server needed.  
 The demo runs a fully simulated AI compliance scan with realistic results, confidence scores, evidence matching, and report export.
 
 ---
 
-## 📋 What This Does
+##  What This Does
 
 Traditional compliance checking requires engineers to manually read hundreds of pages of standards and match requirement clauses to design documents — taking **weeks** and costing **thousands of dollars**. This system automates that:
 
@@ -34,7 +34,7 @@ Traditional compliance checking requires engineers to manually read hundreds of 
 
 ---
 
-## 🗂 Project Structure
+## Project Structure
 
 ```
 compliance-checker/
@@ -69,7 +69,7 @@ compliance-checker/
 
 ---
 
-## ⚙️ Setup
+##  Setup
 
 ### Frontend Only (Demo — No Python Required)
 
@@ -109,7 +109,7 @@ Then open `http://localhost:8000` or point `frontend/index.html` to the API.
 
 ---
 
-## 🧪 Running the Notebooks
+## Running the Notebooks
 
 ```bash
 pip install jupyter
@@ -121,7 +121,7 @@ jupyter notebook notebooks/
 
 ---
 
-## 🏗 Architecture
+## Architecture
 
 ```
 Browser (index.html)
@@ -157,7 +157,7 @@ Final decision: `≥ 80` = PASS, `50–79` = WARN, `< 50` = FAIL.
 
 ---
 
-## 📊 Performance
+## Performance
 
 | Standard | Precision | Recall | F1 Score |
 |----------|-----------|--------|----------|
@@ -173,7 +173,7 @@ Evaluated on 256 labelled clause-evidence pairs (ground truth by a certified com
 
 ---
 
-## 🔧 API Endpoints
+## API Endpoints
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
@@ -184,7 +184,7 @@ Evaluated on 256 labelled clause-evidence pairs (ground truth by a certified com
 
 ---
 
-## 🗺 Upgrade Path: Demo → Real AI
+##  Upgrade Path: Demo → Real AI
 
 The demo uses `generateResults()` (simulated). To switch to real Claude AI:
 
@@ -200,7 +200,7 @@ The `runClaudeCompliance()` function is already written — it just needs an act
 
 ---
 
-## 📦 Dependencies
+## Dependencies
 
 See `requirements.txt` for the full list. Key packages:
 
@@ -219,21 +219,9 @@ See `requirements.txt` for the full list. Key packages:
 
 ## 📄 License
 
-MIT License — see `LICENSE` for details.
+MIT License — see `license` for details
 
----
-
-## 👤 Author
-
-**[Your Name]**  
-Department of Computer Engineering  
-VJTI Mumbai — Academic Year 2025–26
-
----
-
-## 🙏 Acknowledgements
-
-- [Anthropic](https://anthropic.com) — Claude AI API
+##  Acknowledgements
 - [HuggingFace](https://huggingface.co) — Transformers & Sentence-BERT
 - [Facebook AI Research](https://github.com/facebookresearch/faiss) — FAISS
 - IEEE Standards Association, IPC, ISO, NEC, BIS, ASME — Normative standards
