@@ -7,7 +7,7 @@
 
 ##  Demo
 
-Open `frontend/index.html` directly in your browser — no server needed.  
+Open `frontend/index.html` directly in your browser ; no server needed.  
 The demo runs a fully simulated AI compliance scan with realistic results, confidence scores, evidence matching, and report export.
 
 ---
@@ -116,8 +116,8 @@ pip install jupyter
 jupyter notebook notebooks/
 ```
 
-- **01_data_preprocessing.ipynb** — Text extraction, tokenisation, NER clause tagging, dataset assembly
-- **02_model_evaluation.ipynb** — F1 score evaluation, confusion matrix, confidence calibration charts
+- **01_data_preprocessing.ipynb** : Text extraction, tokenisation, NER clause tagging, dataset assembly
+- **02_model_evaluation.ipynb** : F1 score evaluation, confusion matrix, confidence calibration charts
 
 ---
 
@@ -219,7 +219,7 @@ See `requirements.txt` for the full list. Key packages:
 
 ## 📄 License
 
-MIT License — see `compliance-checker/license` for details
+MIT License: `/license` for details
 
 ##  Acknowledgements
 - [HuggingFace](https://huggingface.co) — Transformers & Sentence-BERT
