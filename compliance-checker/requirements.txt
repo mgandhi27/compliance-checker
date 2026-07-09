@@ -1,0 +1,69 @@
+# ── Web Framework ────────────────────────────────────────
+fastapi==0.111.0
+uvicorn[standard]==0.30.1
+python-multipart==0.0.9       # Required for file uploads in FastAPI
+
+# ── AI / LLM ─────────────────────────────────────────────
+anthropic==0.28.0             # Claude API client
+
+# ── NLP & Embeddings ─────────────────────────────────────
+sentence-transformers==3.0.1  # BERT-based sentence embeddings
+transformers==4.42.3          # HuggingFace transformer models
+torch==2.3.1                  # PyTorch (CPU version; swap for torch+cu121 for GPU)
+tokenizers==0.19.1            # Fast tokenisers
+
+# ── Vector Search ────────────────────────────────────────
+faiss-cpu==1.8.0              # Facebook AI Similarity Search (CPU build)
+numpy==1.26.4                 # Numerical computing (required by FAISS)
+
+# ── NLP Utilities ────────────────────────────────────────
+spacy==3.7.5                  # Industrial NLP — NER, dependency parsing
+# After install, run: python -m spacy download en_core_web_sm
+
+# ── Document Parsing ─────────────────────────────────────
+pdfplumber==0.11.1            # PDF text extraction (digital PDFs)
+PyMuPDF==1.24.5               # Alternative PDF parser (fitz) for complex layouts
+pytesseract==0.3.10           # OCR for scanned PDFs (requires Tesseract OS package)
+Pillow==10.3.0                # Image processing for OCR preprocessing
+python-docx==1.1.2            # .docx Word document parsing
+openpyxl==3.1.4               # .xlsx Excel read/write
+
+# ── Unit Handling ────────────────────────────────────────
+pint==0.23                    # Physical unit library for numeric validation
+
+# ── Data Handling ────────────────────────────────────────
+pandas==2.2.2                 # DataFrame operations for dataset management
+scikit-learn==1.5.0           # ML utilities — metrics, calibration, train/test split
+
+# ── Text Chunking ────────────────────────────────────────
+langchain==0.2.6              # RecursiveCharacterTextSplitter
+langchain-text-splitters==0.2.2
+tiktoken==0.7.0               # BPE tokeniser for accurate token counting
+
+# ── Report Generation ────────────────────────────────────
+reportlab==4.2.0              # PDF report generation
+Jinja2==3.1.4                 # HTML templating for reports
+
+# ── Database / Persistence ──────────────────────────────
+sqlalchemy==2.0.30            # ORM for PostgreSQL
+alembic==1.13.1               # Schema migrations
+psycopg2-binary==2.9.9        # PostgreSQL driver
+
+# ── Task Queue ───────────────────────────────────────────
+celery==5.4.0                 # Async task queue for long-running scans
+redis==5.0.6                  # Redis client (Celery broker)
+
+# ── Config & Security ────────────────────────────────────
+python-dotenv==1.0.1          # Load .env files
+pydantic==2.7.4               # Data validation and settings
+
+# ── Testing ──────────────────────────────────────────────
+pytest==8.2.2
+pytest-asyncio==0.23.7
+httpx==0.27.0                 # Async HTTP client for FastAPI test client
+
+# ── Jupyter (for notebooks) ──────────────────────────────
+jupyter==1.0.0
+ipykernel==6.29.4
+matplotlib==3.9.0
+seaborn==0.13.2

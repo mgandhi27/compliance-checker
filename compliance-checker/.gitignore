@@ -1,0 +1,81 @@
+# ── Python ──────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+.Python
+
+# ── Virtual Environments ─────────────────────────────────
+venv/
+env/
+ENV/
+.venv/
+.env/
+.conda/
+
+# ── Environment variables (NEVER commit API keys) ────────
+.env
+.env.local
+.env.production
+*.env
+
+# ── ML Model Weights (too large for GitHub) ─────────────
+models/*.bin
+models/*.pt
+models/*.pth
+models/*.onnx
+models/*.pkl
+models/*.h5
+models/*.safetensors
+# Keep the .gitkeep so the folder is tracked
+!models/.gitkeep
+
+# ── FAISS Index Files ────────────────────────────────────
+*.faiss
+*.index
+data/*.faiss
+
+# ── Jupyter Notebooks Checkpoints ───────────────────────
+.ipynb_checkpoints/
+*/.ipynb_checkpoints/
+
+# ── IDE / Editor ─────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+*.DS_Store
+Thumbs.db
+
+# ── Logs ────────────────────────────────────────────────
+*.log
+logs/
+celery_logs/
+
+# ── Test / Coverage ──────────────────────────────────────
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# ── Docker ───────────────────────────────────────────────
+.dockerignore
+
+# ── OS ───────────────────────────────────────────────────
+.DS_Store
+.AppleDouble
+.LSOverride
+desktop.ini
+
+# ── Byte-compiled / optimised ───────────────────────────
+*.pyc
+*.pyo
+
+# ── HuggingFace cache (can be huge) ──────────────────────
+.cache/huggingface/
+transformers_cache/

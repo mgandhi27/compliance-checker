@@ -1,0 +1,43 @@
+standard_id,clause_id,clause_type,requirement_text,min_value,max_value,unit,criticality
+IEEE,55.5.3.2,numeric,"Differential output voltage at MDI shall be between 0.67V and 1.33V peak-to-peak for 10GBASE-T operation",0.67,1.33,V,critical
+IEEE,55.5.3.3,numeric,"Output impedance at MDI shall be 85 to 115 Ohm differential for proper line matching",85.0,115.0,Ohm,critical
+IEEE,55.5.3.4,numeric,"Return loss shall be at minimum 12 dB across the 1 to 500 MHz frequency range",12.0,,dB,high
+IEEE,55.5.3.6,numeric,"Transmit pair skew shall not exceed 2.5 ns between any two pairs",,2.5,ns,high
+IEEE,28.2.1,boolean,"Auto-negotiation shall be implemented and enabled by default on all 10/100/1000BASE-T interfaces",,,,medium
+IEEE,73.6.1,semantic,"Clause 73 base page advertisement shall correctly encode all supported link modes",,,,medium
+IEEE,55.4.2,numeric,"Link training and signal acquisition shall complete within 10 seconds of link partner detection",,10.0,s,high
+IEEE,78.3.1,boolean,"Energy Efficient Ethernet capability shall be advertised during auto-negotiation if implemented",,,,low
+IPC,4.1.2,numeric,"All PCB traces carrying more than 1A continuous current shall have minimum width of 0.3mm at 25 degrees C ambient",0.3,,mm,critical
+IPC,4.3.1,numeric,"Solder mask clearance from copper features shall be a minimum of 0.05mm on all sides",0.05,,mm,high
+IPC,5.2.4,numeric,"Via drill diameter shall not be less than 0.2mm for any signal or power layer connection",0.2,,mm,high
+IPC,6.1.1,boolean,"All components shall be rated for the specified operating temperature range of the assembly",,,,critical
+IPC,6.4.2,boolean,"Conformal coating shall be applied to assemblies designated for harsh or outdoor environments",,,,medium
+IPC,7.2.1,numeric,"Impedance controlled traces shall maintain specified impedance within 10 percent across the entire board",,10.0,%,critical
+IPC,8.1.1,boolean,"Each PCB assembly shall carry a unique serial number visible on the silkscreen layer",,,,high
+IPC,9.4.1,semantic,"BGA component land patterns shall comply with IPC-7351 recommended footprint dimensions",,,,critical
+ISO,4.1,process,"Organisation shall determine external and internal issues relevant to its purpose and QMS",,,,medium
+ISO,6.1,process,"Organisation shall determine risks and opportunities that need to be addressed for QMS effectiveness",,,,high
+ISO,7.2,process,"Organisation shall determine the necessary competence of persons doing work that affects quality",,,,medium
+ISO,8.1,process,"Organisation shall plan implement control and monitor processes needed to meet product requirements",,,,high
+ISO,8.3,process,"Organisation shall establish and maintain a documented design and development process",,,,high
+ISO,9.1,process,"Organisation shall monitor measure analyse and evaluate quality performance against planned results",,,,medium
+ISO,10.2,process,"Organisation shall react to nonconformities and take action to control and correct them",,,,high
+NEC,110.3,boolean,"Listed or labelled equipment shall be installed and used per instructions included in the listing",,,,critical
+NEC,210.8,boolean,"Ground-fault circuit-interrupter protection shall be provided for personnel in specified locations",,,,critical
+NEC,230.42,semantic,"Service entrance conductors shall have an ampacity not less than the load to be served",,,,critical
+NEC,300.5,semantic,"Underground wiring shall be installed at minimum cover depths as specified per conductor type",,,,high
+NEC,310.15,semantic,"Conductor ampacity shall be determined in accordance with the applicable table and installation conditions",,,,critical
+NEC,408.3,boolean,"Switchboards and panelboards shall be protected and accessible only to qualified persons",,,,high
+NEC,501.10,semantic,"Wiring methods in Class I Division 1 locations shall be approved explosion-proof or intrinsically safe",,,,critical
+BIS,3.1.1,boolean,"All electrical installations shall be carried out by licensed contractors or under qualified engineer supervision",,,,high
+BIS,4.2.3,semantic,"Earthing conductors shall have cross-sectional area not less than that specified in Table 3",,,,critical
+BIS,5.1.2,boolean,"All switchgear and controlgear shall be suitable for the prospective short-circuit current at point of installation",,,,critical
+BIS,6.3.1,semantic,"Cable routes shall be selected to minimise risks from mechanical damage heat fire water and corrosion",,,,high
+BIS,7.1.4,boolean,"Every installation shall be protected against overcurrent by devices which interrupt the circuit before danger",,,,critical
+BIS,8.2.1,numeric,"Test certificates and inspection records shall be maintained for a minimum period of 10 years",10.0,,years,high
+ASME,1.4,boolean,"All drawings shall use the inch or millimetre unit system consistently throughout with units stated in title block",,,,high
+ASME,2.1.1,boolean,"Geometric tolerances shall be specified to control the form orientation location and runout of features",,,,high
+ASME,3.3.2,semantic,"Datum reference frames shall be established using features that are functional to the assembly",,,,high
+ASME,4.5.1,boolean,"Position tolerances shall be specified for all features that must be located relative to datum reference frames",,,,high
+ASME,5.2,boolean,"Surface finish symbols shall be specified on all machined surfaces with roughness values in Ra or Rz",,,,medium
+ASME,6.1,boolean,"All dimensions shall have associated tolerances either directly stated in a general tolerance block or via geometric control",,,,high

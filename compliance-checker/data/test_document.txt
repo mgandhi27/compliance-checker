@@ -1,0 +1,220 @@
+SMART INDUSTRIAL MOTOR CONTROLLER — ENGINEERING SPECIFICATION
+Document Number: NXL-IMC-2024-001
+Revision: Rev A
+Date: 14 March 2024
+Author: Engineering Team, NexaLink Systems Inc.
+Classification: Confidential
+
+================================================================================
+1. OVERVIEW
+================================================================================
+
+The NXL-IMC-500 is a variable-frequency drive (VFD) unit for controlling
+3-phase AC induction motors in factory automation environments. The unit handles
+480V AC 3-phase input and uses an IGBT-based inverter bridge switching at 10 kHz.
+
+Operating temperature range: -10 degrees C to +55 degrees C (ambient).
+Storage temperature range: -40 degrees C to +85 degrees C.
+Enclosure rating: IP54.
+Supply voltage: 480V AC 3-phase, 50/60 Hz.
+
+================================================================================
+2. NETWORK INTERFACE — ETHERNET PORT
+================================================================================
+
+The controller includes a shielded RJ-45 Ethernet port for SCADA integration.
+The interface operates at 100BASE-TX (100 Mbps) with auto-negotiation support
+between 10BASE-T and 100BASE-TX modes enabled by default.
+
+Energy Efficient Ethernet (EEE) is not implemented in this hardware revision.
+
+PHY electrical specifications (measured at RJ-45 MDI connector):
+  - Differential output voltage: 1.1V peak-to-peak
+  - Output impedance: 100 Ohm nominal (differential)
+  - Return loss measured: 15 dB across 1-500 MHz frequency band
+  - Link training time: 6.2 seconds average (cold start)
+  - Pair-to-pair skew: 0.8 ns maximum
+
+The auto-negotiation state machine is implemented per IEEE 802.3 Clause 28.
+Advertised capabilities: 100BASE-TX full-duplex, 10BASE-T full-duplex.
+
+================================================================================
+3. PCB DESIGN
+================================================================================
+
+The main control PCB is a 6-layer FR4 board (Tg 150 degrees C).
+Board dimensions: 220mm x 180mm.
+Copper weight: 1 oz (35 μm) on signal layers, 2 oz (70 μm) on power planes.
+
+High-current trace specifications:
+  - Gate driver section conductors on layer 2: width 1.5mm, rated for 15A
+  - Power input traces: width 3.0mm, rated for 25A
+  - Signal traces: minimum width 0.15mm
+
+Via specifications:
+  - Signal vias: drill diameter 0.3mm, finished hole 0.25mm
+  - Power vias: drill diameter 0.5mm, finished hole 0.45mm
+  - All vias are through-hole type (no blind or buried vias in this revision)
+
+Solder mask:
+  - Solder mask clearance from all copper features: 0.08mm minimum
+  - Solder mask colour: green, matte finish
+
+Impedance control:
+  - Differential pairs on layer 1 and layer 2: 100 Ohm, tolerance ±12%
+  - Note: This exceeds the IPC-2221B ±10% specification — engineering deviation
+    request DE-2024-012 has been submitted for approval.
+
+Silkscreen:
+  - Each board assembly carries a unique serial number printed on top silkscreen
+  - Format: NXL-IMC-YYYY-NNNNNN (year and sequential number)
+  - Minimum text height: 1.0mm
+
+Component temperature ratings:
+  - All active components rated -40 degrees C to +85 degrees C (industrial grade)
+  - Passive components (resistors, capacitors): rated -55 degrees C to +125 degrees C
+  - Connectors: rated -40 degrees C to +105 degrees C
+
+No conformal coating is applied to the standard indoor variant (NXL-IMC-500-STD).
+The outdoor/harsh variant (NXL-IMC-500-EX) includes full conformal coating
+per IPC-CC-830.
+
+BGA components:
+  - The main control ASIC (NXL-CTRL-01) is a 256-ball BGA package
+  - Land pattern designed per IPC-7351 standard recommendations
+  - Ball pitch: 0.8mm, pad diameter: 0.45mm
+
+================================================================================
+4. MECHANICAL AND DIMENSIONAL SPECIFICATIONS
+================================================================================
+
+All engineering drawings use the millimetre (mm) unit system throughout.
+The title block on all drawings states: "Dimensions in mm unless otherwise stated."
+
+Datum reference frames:
+  - Primary datum A: bottom mounting face of enclosure
+  - Secondary datum B: left side wall
+  - Tertiary datum C: rear panel
+  - All datums selected based on functional assembly requirements
+
+Geometric tolerances:
+  - All mounting hole position tolerances: ±0.25mm (specified with position
+    tolerance symbol per ASME Y14.5 on all relevant drawing views)
+  - Form tolerances applied to all mating surfaces (flatness ±0.1mm)
+  - Orientation tolerances applied to all critical interfaces
+
+Surface finish:
+  - All machined aluminium enclosure faces: Ra 1.6 μm specified on drawings
+  - Painted external surfaces: Ra 3.2 μm
+  - Surface finish symbols shown on all machined surface callouts using
+    standard ASME Y14.5 surface texture symbols
+
+General tolerances:
+  - Linear dimensions ±0.5mm per ISO 2768-m (stated in title block)
+  - Angular dimensions ±30 minutes
+  - All critical dimensions have individual tolerances specified directly
+
+================================================================================
+5. ELECTRICAL SAFETY AND INSTALLATION
+================================================================================
+
+All switchgear components used in this product are UL Listed and CE Marked.
+Installation must be performed per manufacturer instructions as specified
+in the installation manual NXL-IMC-2024-IM-001.
+
+Power supply wiring:
+  - Input conductors sized at 125% of full-load current per NEC Article 430
+  - Supply circuit uses conductors rated AWG 10 (5.26 mm2) for standard 20A models
+  - Ground conductor: AWG 10 green/yellow, connected to chassis ground bus
+
+Cable routing:
+  - All 480V power cables routed in steel conduit throughout
+  - Signal and control cables maintain minimum 150mm separation from power cables
+  - Cable routes avoid proximity to heat sources (minimum 50mm clearance)
+  - No cable routes through areas subject to mechanical damage without protection
+
+Overcurrent protection:
+  - Primary overcurrent protection: Class J fuses rated 150% of motor FLA
+  - Secondary protection: electronic overload relay integrated in drive firmware
+  - Protection devices interrupt circuit within rated time at specified overcurrent
+
+The NXL-IMC-500 is rated for indoor installation only.
+Ambient operating conditions: 0 to 40 degrees C, max 95% RH non-condensing.
+Altitude: up to 1000m without derating.
+
+Class I Division 1 hazardous location wiring methods are NOT applicable
+to this product — it is not rated for hazardous location use.
+
+================================================================================
+6. EARTHING AND ELECTRICAL INSTALLATION (BIS IS 732)
+================================================================================
+
+All electrical installation work for this product in India shall be performed
+by licensed electrical contractors holding valid BIS licensing credentials,
+under the direct supervision of a qualified electrical engineer.
+
+Earthing conductor specifications:
+  - Main earth conductor: 6 mm2 green/yellow insulated copper, per IS 732 Table 3
+  - Equipment earth: directly bonded to chassis ground terminal
+  - Earth resistance: less than 1 Ohm measured at equipment terminals
+
+Switchgear rating:
+  - All switchgear specified in this installation is rated for the prospective
+    short-circuit current (PSCC) at the installation point
+  - PSCC at installation point: maximum 10 kA symmetrical
+  - All switchgear is rated minimum 10 kA breaking capacity
+
+Cable installation:
+  - All cables installed in galvanised steel conduit
+  - Cable routes avoid areas of mechanical damage, excessive heat, moisture
+  - Minimum bend radius maintained per IS 732 requirements
+
+Test records:
+  - Commissioning test records and certificates maintained in digital PLM system
+  - Retention period: 7 years (note: IS 732 requires minimum 10 years — 
+    this is a known non-compliance, remediation action item open: QA-2024-087)
+
+================================================================================
+7. QUALITY MANAGEMENT
+================================================================================
+
+Design review process:
+  - Concept review: hardware lead + systems engineer sign-off required
+  - Preliminary design review (PDR): full team including QA manager
+  - Critical design review (CDR): department head approval required
+  - Design changes after CDR freeze: ECO approval from engineering manager mandatory
+
+Risk assessment:
+  - FMEA (Failure Mode and Effects Analysis) conducted prior to design freeze
+  - FMEA document: NXL-IMC-2024-FMEA-001 (Rev 2, approved 10 Feb 2024)
+  - All identified critical failure modes have mitigation actions assigned
+
+Competency records:
+  - Engineer competency and training records maintained in HR system
+  - All engineers assigned to this project hold relevant qualifications
+  - Records available for audit upon request
+
+Nonconformance management:
+  - All nonconformances logged in QMS system (Jira Service Management)
+  - Mandatory corrective action tracking with due dates and owner assignment
+  - Monthly NCR review meeting chaired by QA manager
+
+Performance monitoring:
+  - Design quality metrics tracked against project KPIs
+  - First-pass yield targets monitored during prototype build phase
+  - Customer feedback incorporated into next revision planning
+
+================================================================================
+8. REFERENCES
+================================================================================
+
+[1] IEEE 802.3-2022 — IEEE Standard for Ethernet
+[2] IPC-2221B — Generic Standard on Printed Board Design
+[3] ISO 9001:2015 — Quality Management Systems Requirements
+[4] NEC 2023 — NFPA 70 National Electrical Code
+[5] BIS IS 732:2019 — Code of Practice for Electrical Wiring Installations
+[6] ASME Y14.5-2018 — Dimensioning and Tolerancing
+[7] IPC-CC-830 — Qualification and Performance of Electrical Insulating
+    Compound for Printed Wiring Assemblies
+[8] IPC-7351B — Generic Requirements for Surface Mount Design and Land
+    Pattern Standard
