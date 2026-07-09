@@ -219,7 +219,7 @@ See `requirements.txt` for the full list. Key packages:
 
 ## 📄 License
 
-MIT License — see `license` for details
+MIT License — see `compliance-checker/license` for details
 
 ##  Acknowledgements
 - [HuggingFace](https://huggingface.co) — Transformers & Sentence-BERT
