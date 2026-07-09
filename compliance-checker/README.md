@@ -14,7 +14,7 @@ The demo runs a fully simulated AI compliance scan with realistic results, confi
 
 ##  What This Does
 
-Traditional compliance checking requires engineers to manually read hundreds of pages of standards and match requirement clauses to design documents — taking **weeks** and costing **thousands of dollars**. This system automates that:
+Traditional compliance checking requires engineers to manually read hundreds of pages of standards and match requirement clauses to design documents, taking **weeks** and costing **thousands of dollars**. This system automates that:
 
 1. Upload a design document (PDF / DOCX / TXT)
 2. Select a technical standard (IEEE / IPC / ISO / NEC / BIS / ASME)
