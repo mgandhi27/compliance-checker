@@ -71,7 +71,7 @@ compliance-checker/
 
 ##  Setup
 
-### Frontend Only (Demo — No Python Required)
+### Frontend Only (Demo-No Python Required)
 
 ```bash
 git clone https://github.com/YOUR_USERNAME/compliance-checker.git
@@ -145,13 +145,13 @@ Browser (index.html)
 
 ### Key Components
 
-**`src/embedder.py`** — Loads `sentence-transformers/all-MiniLM-L6-v2` and encodes text into 384-dimensional vectors. These vectors capture semantic meaning — "copper trace 0.3mm" and "conductor width 300 microns" produce similar vectors even though they share no words.
+**`src/embedder.py`** : Loads `sentence-transformers/all-MiniLM-L6-v2` and encodes text into 384-dimensional vectors. These vectors capture semantic meaning — "copper trace 0.3mm" and "conductor width 300 microns" produce similar vectors even though they share no words.
 
-**`src/search.py`** — Builds a FAISS `IndexFlatIP` over all document paragraph embeddings. For each standard clause, finds the top-K most semantically similar design document paragraphs via inner-product (cosine) search.
+**`src/search.py`** : Builds a FAISS `IndexFlatIP` over all document paragraph embeddings. For each standard clause, finds the top-K most semantically similar design document paragraphs via inner-product (cosine) search.
 
-**`src/auditor.py`** — Hybrid scoring engine. Combines:
-- **AI semantic score** (60–90% weight depending on clause type) — from Claude or BERT
-- **Rule check score** (10–40% weight) — numeric validation via `pint` unit normalisation + regex extraction
+**`src/auditor.py`** : Hybrid scoring engine. Combines:
+- **AI semantic score** (60–90% weight depending on clause type) : from BERT
+- **Rule check score** (10–40% weight): numeric validation via `pint` unit normalisation + regex extraction
 
 Final decision: `≥ 80` = PASS, `50–79` = WARN, `< 50` = FAIL.
 
@@ -222,6 +222,6 @@ See `requirements.txt` for the full list. Key packages:
 MIT License: `/license` for details
 
 ##  Acknowledgements
-- [HuggingFace](https://huggingface.co) — Transformers & Sentence-BERT
-- [Facebook AI Research](https://github.com/facebookresearch/faiss) — FAISS
-- IEEE Standards Association, IPC, ISO, NEC, BIS, ASME — Normative standards
+- [HuggingFace](https://huggingface.co): Transformers & Sentence-BERT
+- [Facebook AI Research](https://github.com/facebookresearch/faiss): FAISS
+- IEEE Standards Association, IPC, ISO, NEC, BIS, ASME : Normative standards
